@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { DeleteResult, ILike, Repository } from "typeorm";
 import { Postagem } from "../entities/postagem.module.entity";
 import { InjectRepository } from "@nestjs/typeorm";
+import { TemaService } from "../../tema/services/tema.service";
 
 @Injectable() // Indica que a classe é de serviço e pode ser injetada em outras classes 
 export class PostagemService {
@@ -9,18 +10,26 @@ export class PostagemService {
 // Iniciando ferramentas para a classe de serviço
     constructor(
         @InjectRepository(Postagem) // Pode chamar os métodos da classe Repository
-        private postagemRepository: Repository <Postagem>
+        private postagemRepository: Repository <Postagem>,
+        private temaService: TemaService
     ) { }
 
     async findAll(): Promise <Postagem[]> {
 
-        return await this.postagemRepository.find()
+        return await this.postagemRepository.find({
+            relations: {
+                tema: true 
+            }
+        });
     }
     async findById  (id: number): Promise <Postagem> {
        
         const postagem = await this.postagemRepository.findOne ({
             where:{
                  id
+             },
+             relations:{
+                tema: true
              }
         });
 
@@ -33,16 +42,24 @@ export class PostagemService {
         return await this.postagemRepository.find({
             where:{
                 titulo: ILike(`%${titulo}%`)
+            },
+            relations:{
+                tema: true
             }
         })
     }
 
     async create(postagem: Postagem): Promise <Postagem> {
+
+        await this.temaService.findById(postagem.tema.id)
+
         return await this.postagemRepository.save(postagem);
     }
 
     async update(postagem: Postagem): Promise <Postagem>{
         await this.findById(postagem.id)
+
+        await this.temaService.findById(postagem.tema.id)
 
         return await this.postagemRepository.save(postagem);
 

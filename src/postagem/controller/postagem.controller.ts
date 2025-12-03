@@ -20,7 +20,7 @@ export class PostagemController {
         return this.postagemService.findById(id);
     }
 
-    @Get('/titulo/:titulo')
+    @Get('/titulo/:titulo') //Get com acesso em /postagens/titulo/{texto}
     @HttpCode(HttpStatus.OK)
     findAllByTitulo(@Param('titulo') titulo: string): Promise <Postagem[]>{
         return this.postagemService.findAllByTitulo(titulo);
