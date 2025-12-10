@@ -7,17 +7,21 @@ import { Tema } from './temas/entities/tema.entity';
 import { AuthModule } from './auth/auth.module';
 import { Usuario } from './usuario/entities/usuario.entity';
 import { UsuarioModule } from './usuario/usuario.module';
+import { ConfigModule } from '@nestjs/config';
 
 // Decorator - Etiqueta de Metadados
 @Module({
   imports: [  // Configurando o TypeORM
+    ConfigModule.forRoot({
+      isGlobal: true, 
+    }),
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: 'root',
-      database: 'db_blogpessoal',
+      host: process.env.DB_HOST,
+      port: Number (process.env.DB_PORT),
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
       entities: [Postagem, Tema, Usuario],
       synchronize: true,
     }),
